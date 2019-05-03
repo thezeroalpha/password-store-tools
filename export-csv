@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+PASS_DIR=$HOME/.password-store
+
+if [ $# -ne 1 ]; then
+  echo "Usage: ./export-csv [outfile]"
+  exit 1
+elif ! command -v pass &> /dev/null; then
+  echo "Error: pass not in path"
+  exit 1
+elif ! [ -d "$PASS_DIR" ]; then
+  echo "$PASS_DIR does not exist."
+  exit 1
+fi
+
+outfile="$1"
+if [ -e "$outfile" ]; then
+  echo "$outfile will be overwritten."
+  read -p "Are you sure? [Y/n] " -n 1 -r
+  echo
+  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "User cancelled."
+    exit 1
+  fi
+fi
+n_items=$(find "$PASS_DIR" -name "*.gpg" -type f | wc -l | tr -d " ")
+
+i=1
+while IFS= read -r -d '' f; do
+  echo -ne "Processed: $i/$n_items\r"
+
+  # no other way to do this
+  # shellcheck disable=SC2001
+  n="$(echo "${f##*password-store/}" | sed 's/.gpg//')"
+
+  echo "$n,${n%%/*},${n##*/},$(pass show "$n")" >> "$outfile"
+  ((i++))
+done < <(find "$PASS_DIR" -name "*.gpg" -type f -print0)
