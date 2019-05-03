@@ -1,6 +1,6 @@
 # Export passwords to CSV
 Run `./export-csv [outfile]`.
-The passwords will be in `outfile`, in Chrome-style format.
+The passwords will be in `outfile`, in Chrome-style CSV format.
 So if you want to import into e.g. Bitwarden, select to import from Chrome.
 
 # Check if passwords were compromised
